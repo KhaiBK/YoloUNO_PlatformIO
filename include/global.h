@@ -17,4 +17,9 @@ extern String CORE_IOT_PORT;
 
 extern boolean isWifiConnected;
 extern SemaphoreHandle_t xBinarySemaphoreInternet;
+
+// Task 1
+extern volatile int ledTempState;
+extern SemaphoreHandle_t semLedTemp;
+
 #endif

@@ -31,6 +31,18 @@ void temp_humi_monitor(void *pvParameters){
         glob_temperature = temperature;
         glob_humidity = humidity;
 
+        // Task 1: phân loại nhiệt độ cho LED
+        if (temperature < 28) {
+            ledTempState = 0;
+        } else if (temperature < 35) {
+            ledTempState = 1;
+        } else {
+            ledTempState = 2;
+        }
+
+        // Báo cho LED task có dữ liệu mới
+        xSemaphoreGive(semLedTemp);
+
         // Print the results
         
         Serial.print("Humidity: ");
