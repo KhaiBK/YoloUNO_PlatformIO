@@ -17,3 +17,6 @@ SemaphoreHandle_t xBinarySemaphoreInternet = xSemaphoreCreateBinary();
 // Task 1
 volatile int ledTempState = 0;
 SemaphoreHandle_t semLedTemp = NULL;
+// Task 2 
+volatile int neoHumiState = 0;
+SemaphoreHandle_t semNeo = NULL;

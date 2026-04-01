@@ -43,6 +43,18 @@ void temp_humi_monitor(void *pvParameters){
         // Báo cho LED task có dữ liệu mới
         xSemaphoreGive(semLedTemp);
 
+        // Task 2 phân loại độ ẩm theo màu
+
+        if (humidity < 50) {
+          neoHumiState = 0;
+        } else if (humidity < 70) {
+          neoHumiState = 1;
+        } else {
+         neoHumiState = 2;
+        }
+
+        xSemaphoreGive(semNeo);
+
         // Print the results
         
         Serial.print("Humidity: ");

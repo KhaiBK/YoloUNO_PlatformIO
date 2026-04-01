@@ -21,5 +21,8 @@ extern SemaphoreHandle_t xBinarySemaphoreInternet;
 // Task 1
 extern volatile int ledTempState;
 extern SemaphoreHandle_t semLedTemp;
+//Task 2
+extern volatile int neoHumiState;
+extern SemaphoreHandle_t semNeo;
 
 #endif

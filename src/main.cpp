@@ -23,6 +23,7 @@ void setup()
   if (semLedTemp == NULL) {
     Serial.println("Failed to create semLedTemp");
   }
+  semNeo = xSemaphoreCreateBinary();
   xTaskCreate(led_blinky, "Task LED Blink", 2048, NULL, 2, NULL);
   xTaskCreate(neo_blinky, "Task NEO Blink", 2048, NULL, 2, NULL);
   xTaskCreate(temp_humi_monitor, "Task TEMP HUMI Monitor", 2048, NULL, 2, NULL);
