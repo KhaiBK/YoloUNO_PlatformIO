@@ -14,6 +14,7 @@
 #include "task_webserver.h"
 #include "task_core_iot.h"
 
+
 void setup()
 {
   Serial.begin(115200);
@@ -23,7 +24,18 @@ void setup()
   if (semLedTemp == NULL) {
     Serial.println("Failed to create semLedTemp");
   }
+
   semNeo = xSemaphoreCreateBinary();
+  if (semNeo == NULL) {
+    Serial.println("Failed to create semNeo");
+  }
+
+  xQueueLed = xQueueCreate(1, sizeof(SensorData));
+  xQueueNeo = xQueueCreate(1, sizeof(SensorData));
+  if (xQueueLed == NULL || xQueueNeo == NULL) {
+    Serial.println("Failed to create queues");
+  }
+
   xTaskCreate(led_blinky, "Task LED Blink", 2048, NULL, 2, NULL);
   xTaskCreate(neo_blinky, "Task NEO Blink", 2048, NULL, 2, NULL);
   xTaskCreate(temp_humi_monitor, "Task TEMP HUMI Monitor", 2048, NULL, 2, NULL);

@@ -2,68 +2,97 @@
 DHT20 dht20;
 LiquidCrystal_I2C lcd(33,16,2);
 
-
 void temp_humi_monitor(void *pvParameters){
 
     Wire.begin(11, 12);
     Serial.begin(115200);
+    lcd.begin();
+    lcd.backlight();
     dht20.begin();
+    
 
     while (1){
-        /* code */
-        
         dht20.read();
+
         // Reading temperature in Celsius
         float temperature = dht20.getTemperature();
         // Reading humidity
         float humidity = dht20.getHumidity();
 
-        
-
         // Check if any reads failed and exit early
         if (isnan(temperature) || isnan(humidity)) {
             Serial.println("Failed to read from DHT sensor!");
-            temperature = humidity =  -1;
-            //return;
+
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Sensor Error");
+
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            continue;
         }
 
-        //Update global variables for temperature and humidity
-        glob_temperature = temperature;
-        glob_humidity = humidity;
+        // Create data packet for RTOS communication
+        SensorData data;
+        data.temperature = temperature;
+        data.humidity = humidity;
 
-        // Task 1: phân loại nhiệt độ cho LED
+        // Temperature state
         if (temperature < 28) {
-            ledTempState = 0;
-        } else if (temperature < 35) {
-            ledTempState = 1;
-        } else {
-            ledTempState = 2;
+            data.tempState = 0;
+        } 
+        else if (temperature < 30) {
+            data.tempState = 1;
+        } 
+        else {
+            data.tempState = 2;
         }
 
-        // Báo cho LED task có dữ liệu mới
+        // Humidity state
+        if (humidity < 60) {
+            data.humiState = 0;
+        } 
+        else if (humidity < 85) {
+            data.humiState = 1;
+        } 
+        else {
+            data.humiState = 2;
+        }
+
+        // LCD Display
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("T:");
+        lcd.print(temperature, 1);
+        lcd.print("C H:");
+        lcd.print(humidity, 0);
+        lcd.print("%");
+
+        lcd.setCursor(0, 1);
+        if (data.tempState == 2 || data.humiState == 2) {
+            lcd.print("CRITICAL");
+        }
+        else if (data.tempState == 1 || data.humiState == 1) {
+            lcd.print("WARNING");
+        }
+        else {
+            lcd.print("NORMAL");
+        }
+
+        // Send latest data to queues
+        xQueueOverwrite(xQueueLed, &data);
+        xQueueOverwrite(xQueueNeo, &data);
+
+        // Notify LED and NeoPixel tasks
         xSemaphoreGive(semLedTemp);
-
-        // Task 2 phân loại độ ẩm theo màu
-
-        if (humidity < 50) {
-          neoHumiState = 0;
-        } else if (humidity < 70) {
-          neoHumiState = 1;
-        } else {
-         neoHumiState = 2;
-        }
-
         xSemaphoreGive(semNeo);
 
         // Print the results
-        
         Serial.print("Humidity: ");
         Serial.print(humidity);
         Serial.print("%  Temperature: ");
         Serial.print(temperature);
         Serial.println("°C");
-        
-        vTaskDelay(5000);
+
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
-    
 }

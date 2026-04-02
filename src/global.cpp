@@ -14,9 +14,9 @@ String wifi_ssid = "abcde";
 String wifi_password = "123456789";
 boolean isWifiConnected = false;
 SemaphoreHandle_t xBinarySemaphoreInternet = xSemaphoreCreateBinary();
-// Task 1
-volatile int ledTempState = 0;
+
+// Task 3 RTOS objects
+QueueHandle_t xQueueLed = NULL;
+QueueHandle_t xQueueNeo = NULL;
 SemaphoreHandle_t semLedTemp = NULL;
-// Task 2 
-volatile int neoHumiState = 0;
 SemaphoreHandle_t semNeo = NULL;

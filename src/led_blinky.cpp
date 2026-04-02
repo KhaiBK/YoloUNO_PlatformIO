@@ -1,33 +1,34 @@
 #include "led_blinky.h"
 
 void led_blinky(void *pvParameters){
-  pinMode(LED_GPIO, OUTPUT);
-  
-  while(1) {                        
-    if (xSemaphoreTake(semLedTemp, portMAX_DELAY) == pdTRUE) {
-    int state = ledTempState;
+    pinMode(LED_GPIO, OUTPUT);
+    SensorData data;
+    int currentState = 0;
 
-    if (state == 0) {
-        // Nhiệt độ thấp: blink chậm
-        digitalWrite(LED_GPIO, HIGH);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-        digitalWrite(LED_GPIO, LOW);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    while(1) {
+        if (xSemaphoreTake(semLedTemp, 0) == pdTRUE) {
+            if (xQueueReceive(xQueueLed, &data, 0) == pdTRUE) {
+                currentState = data.tempState;
+            }
+        }
+
+        if (currentState == 0) {
+            digitalWrite(LED_GPIO, HIGH);
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            digitalWrite(LED_GPIO, LOW);
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+        else if (currentState == 1) {
+            digitalWrite(LED_GPIO, HIGH);
+            vTaskDelay(pdMS_TO_TICKS(500));
+            digitalWrite(LED_GPIO, LOW);
+            vTaskDelay(pdMS_TO_TICKS(500));
+        }
+        else {
+            digitalWrite(LED_GPIO, HIGH);
+            vTaskDelay(pdMS_TO_TICKS(200));
+            digitalWrite(LED_GPIO, LOW);
+            vTaskDelay(pdMS_TO_TICKS(200));
+        }
     }
-    else if (state == 1) {
-        // Nhiệt độ trung bình: blink vừa
-        digitalWrite(LED_GPIO, HIGH);
-        vTaskDelay(pdMS_TO_TICKS(500));
-        digitalWrite(LED_GPIO, LOW);
-        vTaskDelay(pdMS_TO_TICKS(500));
-    }
-    else {
-        // Nhiệt độ cao: blink nhanh
-        digitalWrite(LED_GPIO, HIGH);
-        vTaskDelay(pdMS_TO_TICKS(200));
-        digitalWrite(LED_GPIO, LOW);
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-}
-  }
 }

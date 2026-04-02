@@ -18,11 +18,17 @@ extern String CORE_IOT_PORT;
 extern boolean isWifiConnected;
 extern SemaphoreHandle_t xBinarySemaphoreInternet;
 
-// Task 1
-extern volatile int ledTempState;
-extern SemaphoreHandle_t semLedTemp;
-//Task 2
-extern volatile int neoHumiState;
-extern SemaphoreHandle_t semNeo;
+// Sensor data for RTOS communication
+typedef struct {
+    float temperature;
+    float humidity;
+    uint8_t tempState;   // 0 low, 1 medium, 2 high
+    uint8_t humiState;   // 0 low, 1 medium, 2 high
+} SensorData;
 
+// Task 3 RTOS objects
+extern QueueHandle_t xQueueLed;
+extern QueueHandle_t xQueueNeo;
+extern SemaphoreHandle_t semLedTemp;
+extern SemaphoreHandle_t semNeo;
 #endif

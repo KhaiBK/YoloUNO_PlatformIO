@@ -7,27 +7,27 @@ void neo_blinky(void *pvParameters){
     strip.clear();
     strip.show();
 
-    while(1) {  
+    SensorData data;
 
-        // 🧠 Chờ tín hiệu từ temp_humi_monitor
+    while(1) {
         if (xSemaphoreTake(semNeo, portMAX_DELAY) == pdTRUE) {
+            if (xQueueReceive(xQueueNeo, &data, 0) == pdTRUE) {
 
-            int state = neoHumiState;
+                if (data.humiState == 0) {
+                    // low humidity -> blue
+                    strip.setPixelColor(0, strip.Color(0, 0, 255));
+                }
+                else if (data.humiState == 1) {
+                    // medium humidity -> green
+                    strip.setPixelColor(0, strip.Color(0, 255, 0));
+                }
+                else {
+                    // high humidity -> red
+                    strip.setPixelColor(0, strip.Color(255, 0, 0));
+                }
 
-            if (state == 0) {
-                // 🔵 Độ ẩm thấp → xanh dương
-                strip.setPixelColor(0, strip.Color(0, 0, 255));
+                strip.show();
             }
-            else if (state == 1) {
-                // 🟢 Trung bình → xanh lá
-                strip.setPixelColor(0, strip.Color(0, 255, 0));
-            }
-            else {
-                // 🔴 Cao → đỏ
-                strip.setPixelColor(0, strip.Color(255, 0, 0));
-            }
-
-            strip.show();
         }
     }
 }
