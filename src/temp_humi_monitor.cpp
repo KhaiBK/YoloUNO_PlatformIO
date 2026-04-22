@@ -30,6 +30,10 @@ void temp_humi_monitor(void *pvParameters){
             vTaskDelay(pdMS_TO_TICKS(2000));
             continue;
         }
+    // Lab2
+       glob_temperature = temperature;
+        glob_humidity = humidity;
+
 
         // Create data packet for RTOS communication
         SensorData data;
@@ -40,7 +44,7 @@ void temp_humi_monitor(void *pvParameters){
         if (temperature < 28) {
             data.tempState = 0;
         } 
-        else if (temperature < 30) {
+        else if (temperature < 32) {
             data.tempState = 1;
         } 
         else {
